@@ -27,10 +27,3 @@ def crop(file, key_string, output_path):
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
-
-
-# cropped = crop(
-#     './samples/1099_1.pdf',
-#     "Detail for Dividends and Distributions",
-#     './output/croppy.pdf'
-# )

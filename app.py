@@ -53,7 +53,7 @@ def main():
                           './input/dividends.pdf'
                           )
         interest_pdf = crop('./input/data.pdf',
-                            'Interest Income',
+                            'Detail for Interest Income',
                             './input/interest.pdf'
                             )
         
@@ -62,23 +62,27 @@ def main():
 
         if not dividends_pdf:
             sys.exit(2)
-        
+
         if interest_pdf:
-            print('interest TBD')
-            # TBD, interest extraction
-            # interest_table = interest('./input/interest.pdf')
-            # interest_table.to_csv(f'./output/interest_{file_name}.csv')
+            interest_table = table_extractor.interest('./input/interest.pdf')
+            if interest_table.empty:
+                raise ValueError(6)
+            interest_table.to_csv(f'./output/interest.csv', float_format='%.2f')
+            file_path = os.path.join(input_folder, "interest.pdf")
+            if os.path.exists(file_path):
+                os.remove(file_path)
         
         broker_transactions_df = table_extractor.broker('./input/summary.pdf')
         if broker_transactions_df.empty:
             raise ValueError(3)
         
         dividends_table = table_extractor.dividends('./input/dividends.pdf')
+        
         if dividends_table.empty:
             raise ValueError(4)
 
-        dividends_table.to_csv(f'./output/dividends.csv')
-        broker_transactions_df.to_csv(f'./output/broker_transactions.csv')
+        dividends_table.to_csv(f'./output/dividends.csv', float_format='%.2f')
+        broker_transactions_df.to_csv(f'./output/broker_transactions.csv', float_format='%.2f')
 
     except Exception as e:
         traceback.print_exc()
@@ -91,10 +95,9 @@ def main():
             sys.exit(100)
         
 
-    folder_to_clean = "./input/"
-    files_to_clean = ["data.pdf", "dividends.pdf", "summary.pdf", "interest.pdf"]
+    files_to_clean = ["data.pdf", "dividends.pdf", "summary.pdf"]
     for file_name in files_to_clean:
-        file_path = os.path.join(folder_to_clean, file_name)
+        file_path = os.path.join(input_folder, file_name)
         if os.path.exists(file_path):
             os.remove(file_path)
         else:

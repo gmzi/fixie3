@@ -55,6 +55,10 @@ if [ $STATUS -ne 0 ]; then
         osascript -e 'tell app "System Events" to display dialog "failed creating csv files"'
         exit 5
         ;;
+    6)
+        osascript -e 'tell app "System Events" to display dialog "failed extracting interest table"'
+        exit 6
+        ;;
     *)
         osascript -e 'tell app "System Events" to display dialog "unknown error with status '$STATUS'"'
         exit $STATUS
