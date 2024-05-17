@@ -29,13 +29,15 @@ def extract_text_to_dataframe(page, transaction_types):
     for line in lines:
         if "Total " in line:
             continue
-        elif re.match(r'.*([A-Z]{2,})$', line):
-            if re.search(r'\d', line):
-                # Remove all numbers and keep only alphabetic characters and spaces
-                current_symbol = re.sub(r'[^A-Za-z\s]', '', line).strip()
-            else:
-                # If there are no numbers, keep the string as it is
-                current_symbol = line.strip()
+        elif re.match(r'^[A-Z]{2,}', line):
+        # elif re.match(r'.*([A-Z]{2,})$', line):
+            current_symbol = line
+            # if re.search(r'\d', line):
+            #     # Remove all numbers and keep only alphabetic characters and spaces
+            #     current_symbol = re.sub(r'[^A-Za-z\s]', '', line).strip()
+            # else:
+            #     # If there are no numbers, keep the string as it is
+            #     current_symbol = line.strip()
         elif re.match(r'\d{2}/\d{2}/\d{2}', line):
             current_date = line
         elif re.match(r'-?\d+,\d{3}\.\d+|-?\d+\.\d+', line):
