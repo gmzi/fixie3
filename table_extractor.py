@@ -3,7 +3,6 @@ import sys
 import pymupdf
 import pandas as pd
 import re
-import numpy as np
 
 def convert_to_float(x):
     if x.strip():

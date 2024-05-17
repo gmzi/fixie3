@@ -8,17 +8,11 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-# confirm before launching:
-# osascript <<EOD
-# tell application "System Events"
-#     display dialog "Launch Fixie?"
-# end tell
-# EOD
 
 # Display dialog before launching fixie:
 osascript <<EOD
 tell application "System Events"
-    display dialog "Fixie is working..." giving up after 1
+    display dialog "Fixie3 is working..." giving up after 1
 end tell
 EOD
 
