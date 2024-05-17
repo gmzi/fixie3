@@ -13,34 +13,34 @@ def main():
     # -------------------------------------------------
     # BRING FILE FROM AUTOMATOR
 
-    # if len(sys.argv) < 2:
-    #     sys.exit(1)
+    if len(sys.argv) < 2:
+        sys.exit(1)
 
-    # file_path = sys.argv[1]
-    # file_name = os.path.basename(file_path)
+    file_path = sys.argv[1]
+    file_name = os.path.basename(file_path)
 
-    # if not file_path.endswith('.pdf'):
-    #     print("The provided file is not a pdf")
-    #     sys.exit(1)
+    if not file_path.endswith('.pdf'):
+        print("The provided file is not a pdf")
+        sys.exit(1)
 
-    # new_path = os.path.join(input_folder, 'data.pdf')
-    # shutil.copy(file_path, new_path)
+    new_path = os.path.join(input_folder, 'data.pdf')
+    shutil.copy(file_path, new_path)
 
     # -------------------------------------------------
 
     # -------------------------------------------------
     # MANUALLY ADD FILE TO LOCAL INPUT FOLDER
-    files = os.listdir(input_folder)
-    file_name = 'default'
+    # files = os.listdir(input_folder)
+    # file_name = 'default'
 
-    try:
-        for file in files:
-            if file.endswith('.pdf'):
-                original_path = os.path.join(input_folder, file)
-                new_path = os.path.join(input_folder, "data.pdf")
-                shutil.copy(original_path, new_path)
-    except Exception as e:
-        print(e)
+    # try:
+    #     for file in files:
+    #         if file.endswith('.pdf'):
+    #             original_path = os.path.join(input_folder, file)
+    #             new_path = os.path.join(input_folder, "data.pdf")
+    #             shutil.copy(original_path, new_path)
+    # except Exception as e:
+    #     print(e)
     # -------------------------------------------------
 
     try:
