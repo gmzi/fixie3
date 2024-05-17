@@ -33,7 +33,8 @@ def extract_text_to_dataframe(page, transaction_types):
             current_symbol = line
         elif re.match(r'\d{2}/\d{2}/\d{2}', line):
             current_date = line
-        elif re.match(r'\d+,\d{3}\.\d+|\d+\.\d+', line):
+        # elif re.match(r'\d+,\d{3}\.\d+|\d+\.\d+', line):
+        elif re.match(r'-?\d+,\d{3}\.\d+|-?\d+\.\d+', line):
             current_amount = line
         elif re.match(transaction_types_pattern, line):
             current_transaction = line
@@ -42,8 +43,9 @@ def extract_text_to_dataframe(page, transaction_types):
                 current_date = None
                 current_amount = None
                 current_transaction = None
-    
+
     columns = ["symbol", "date", "amount", "transaction"]
+
     df = pd.DataFrame(data, columns=columns)
 
     df['amount'] = df['amount'].apply(lambda x: convert_to_float(x))
@@ -51,7 +53,7 @@ def extract_text_to_dataframe(page, transaction_types):
     return df
 
 def dividends(file_path):
-    transaction_types = ['Nonqualified dividend', 'Qualified dividend', 'Short-term capital gain', 'Long-term capital gain', 'Section 199A dividend', 'Foreign tax withheld-Various', 'Tax-exempt dividend']
+    transaction_types = ['Nonqualified dividend', 'Qualified dividend', 'Short-term capital gain', 'Long-term capital gain', 'Section 199A dividend', 'Foreign tax withheld', 'Tax-exempt dividend']
     try:
         doc = pymupdf.open(file_path)
         dfs = []
