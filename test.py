@@ -31,7 +31,7 @@ def main():
     # -------------------------------------------------
     # MANUALLY ADD FILE TO LOCAL INPUT FOLDER
     files = os.listdir(input_folder)
-    file_name = 'default'
+    file_name = 'test'
 
     try:
         for file in files:
@@ -83,6 +83,13 @@ def main():
 
         dividends_table.to_csv(f'./output/dividends.csv', float_format='%.2f')
         broker_transactions_df.to_csv(f'./output/broker_transactions.csv', float_format='%.2f')
+
+        # UNCOMMENT TO EXPORT TO SINGLE .xls file:
+        with pd.ExcelWriter(f'./output/{file_name}.xlsx', engine='xlsxwriter') as writer:
+            dividends_table.to_excel(writer, sheet_name='Dividends', index=False)
+            broker_transactions_df.to_excel(writer, sheet_name='Broker Transactions', index=False)
+            if interest_pdf:
+                interest_table.to_excel(writer, sheet_name='Interest', index=False)
 
     except Exception as e:
         traceback.print_exc()
