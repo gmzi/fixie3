@@ -30,14 +30,9 @@ def extract_text_to_dataframe(page, transaction_types):
         if "Total " in line:
             continue
         elif re.match(r'^[A-Z]{2,}', line):
-        # elif re.match(r'.*([A-Z]{2,})$', line):
+            if "(cont'd)" in line:
+                line = line.replace("(cont'd)", "").strip()
             current_symbol = line
-            # if re.search(r'\d', line):
-            #     # Remove all numbers and keep only alphabetic characters and spaces
-            #     current_symbol = re.sub(r'[^A-Za-z\s]', '', line).strip()
-            # else:
-            #     # If there are no numbers, keep the string as it is
-            #     current_symbol = line.strip()
         elif re.match(r'\d{2}/\d{2}/\d{2}', line):
             current_date = line
         elif re.match(r'-?\d+,\d{3}\.\d+|-?\d+\.\d+', line):
@@ -69,6 +64,9 @@ def dividends(file_path):
             if df is not None and not df.empty:
                 dfs.append(df)
 
+        if len(dfs) == 0:
+            return pd.DataFrame()
+        
         master_df = pd.concat(dfs, ignore_index=True)
 
         table = master_df.pivot_table(index='symbol', columns='transaction', values='amount', aggfunc='sum', fill_value=0).reset_index()
