@@ -10,6 +10,11 @@ def convert_to_float(x):
     else:
         return None
     
+def format_numeric_columns(df):
+    for col in df.select_dtypes(include=['number']).columns:
+        df[col] = df[col].map('${:,.2f}'.format)
+    return df
+
 def extract_text_to_dataframe(page, transaction_types):
     transaction_types_pattern = '|'.join(map(re.escape, transaction_types))
 
@@ -22,6 +27,7 @@ def extract_text_to_dataframe(page, transaction_types):
     lines = text.split('\n')
     data = []
     current_symbol = None
+    current_ticker = '-'
     current_date = None
     current_amount = None
     current_transaction = None
@@ -33,6 +39,14 @@ def extract_text_to_dataframe(page, transaction_types):
             if "(cont'd)" in line:
                 line = line.replace("(cont'd)", "").strip()
             current_symbol = line
+        elif re.match(r'.*([A-Z]{2,})$', line):
+            # ticker = re.sub(r'[^A-Za-z\s]', '', line).strip()
+            # current_ticker = ticker
+            match = re.search(r'\b([A-Z]{1,20})\b(?=\s*\d{2}/\d{2}/\d{2}|\s*$)', line)
+            if match:
+                current_ticker = match.group(1)
+            else: 
+                current_ticker = '-'
         elif re.match(r'\d{2}/\d{2}/\d{2}', line):
             current_date = line
         elif re.match(r'-?\d+,\d{3}\.\d+|-?\d+\.\d+', line):
@@ -40,12 +54,12 @@ def extract_text_to_dataframe(page, transaction_types):
         elif re.match(transaction_types_pattern, line):
             current_transaction = line
             if current_symbol and current_date and current_amount and current_transaction:
-                data.append([current_symbol, current_date, current_amount, current_transaction])
+                data.append([current_symbol, current_ticker, current_date, current_amount, current_transaction])
                 current_date = None
                 current_amount = None
                 current_transaction = None
 
-    columns = ["symbol", "date", "amount", "transaction"]
+    columns = ["symbol", "ticker", "date", "amount", "transaction"]
 
     df = pd.DataFrame(data, columns=columns)
 
@@ -69,17 +83,30 @@ def dividends(file_path):
         
         master_df = pd.concat(dfs, ignore_index=True)
 
-        table = master_df.pivot_table(index='symbol', columns='transaction', values='amount', aggfunc='sum', fill_value=0).reset_index()
+        ticker_df = master_df[['symbol', 'ticker']].drop_duplicates()
+
+        table = master_df.pivot_table(index=['symbol'], columns='transaction', values='amount', aggfunc='sum', fill_value=0).reset_index()
+
+        table = pd.merge(table, ticker_df,  on='symbol', how='left')
+
 
         sums = table.sum(axis=0)
         sums['symbol'] = 'Totals'
-
         sums_df = pd.DataFrame([sums.values], columns=table.columns)
 
         new_table = pd.concat([sums_df, table], ignore_index=True)
 
-        for col in new_table.columns[1:]:
-            new_table[col] = new_table[col].astype(float).map('${:,.2f}'.format)
+        new_table = format_numeric_columns(new_table)
+
+        # Remove contents of 'ticker' column where 'symbol' is 'Totals'
+        new_table.loc[new_table['symbol'] == 'Totals', 'ticker'] = ''
+
+        # Dynamically reorder columns
+        columns = list(new_table.columns)
+        columns.remove('symbol')
+        columns.remove('ticker')
+        new_order = ['symbol', 'ticker'] + columns
+        new_table = new_table[new_order]
 
         return new_table
     
